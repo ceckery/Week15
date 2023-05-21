@@ -1,0 +1,91 @@
+import React from 'react';
+
+const House = ({ house, onDelete }) => {
+  return (
+    <div>
+      <h3>{house.name}</h3>
+      <p>{house.description}</p>
+      <button onClick={() => onDelete(house.id)}>Delete</button>
+    </div>
+  );
+};
+
+export default House;
+import React, { useState } from 'react';
+
+const HouseForm = ({ onSubmit }) => {
+  const [name, setName] = useState('');
+  const [description, setDescription] = useState('');
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    onSubmit({ name, description });
+    setName('');
+    setDescription('');
+  };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <input
+        type="text"
+        placeholder="Name"
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+      />
+      <input
+        type="text"
+        placeholder="Description"
+        value={description}
+        onChange={(e) => setDescription(e.target.value)}
+      />
+      <button type="submit">Submit</button>
+    </form>
+  );
+};
+
+export default HouseForm;
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+import House from './House';
+
+const HouseList = () => {
+  const [houses, setHouses] = useState([]);
+
+  useEffect(() => {
+    fetchHouses();
+  }, []);
+
+  const fetchHouses = async () => {
+    try {
+      const response = await axios.get('<API_URL>/houses');
+      setHouses(response.data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const deleteHouse = async (id) => {
+    try {
+      await axios.delete(`<API_URL>/houses/${id}`);
+      fetchHouses();
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const createHouse = async (house) => {
+    try {
+      await axios.post('<API_URL>/houses', house);
+      fetchHouses();
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  return (
+    <div>
+      <h2>Houses</h2>
+      {houses.map((house) => (
+        <House key={house.id} house={house} onDelete={deleteHouse} />
+      ))}
+      <
